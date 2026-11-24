@@ -29,3 +29,44 @@ details summary { cursor:pointer; }
 .live-review { animation:entry .28s both; }
 @media(max-width:1000px) { .mix,.mix.invert { grid-template-columns:1fr; } }
 @media(max-width:720px) { .shell { display:block } }
+
+/* 样本撤回与用样核对 */
+.govern { margin: 14px 0; border:1px solid var(--line); background:var(--sheet); padding:14px 16px; }
+.govern .intro { color:var(--soft); max-width:90ch; }
+.govern form { display:grid; gap:8px; max-width:560px; margin:8px 0 14px; }
+.govern h3 { margin:16px 0 6px; }
+.baseline-list { border:1px solid var(--line); background:var(--paper); max-height:300px; overflow:auto; }
+.baseline-row { display:grid; grid-template-columns:130px 150px minmax(180px,1fr) 130px; gap:10px;
+  align-items:center; padding:6px 10px; border-bottom:1px dashed var(--line); font-size:.92rem; }
+.baseline-row.head { position:sticky; top:0; background:var(--tint); font-weight:600; }
+.baseline-row.is-withdrawn { opacity:.72; }
+.baseline-row.is-withdrawn code { text-decoration:line-through; text-decoration-color:oklch(79% .135 33); }
+.baseline-state { display:flex; flex-direction:column; gap:3px; }
+.baseline-state small, .baseline-row small { color:var(--soft); overflow-wrap:anywhere; }
+.row-action .quiet { padding:2px 8px; }
+.signal-tag[data-state=withdrawn], .signal-tag.is-withdrawn { color:oklch(82% .13 60); border-color:oklch(70% .15 55); }
+.signal-tag[data-state=unverifiable], .signal-tag.is-unverifiable { color:oklch(80% .135 33); border-color:oklch(70% .16 30); }
+.signal-tag[data-state=verified], .signal-tag.is-verified { color:oklch(79% .113 156); }
+details.finding summary { display:flex; align-items:center; gap:10px; flex-wrap:wrap; list-style:none; cursor:pointer; }
+details.finding summary::-webkit-details-marker { display:none; }
+details.finding summary code { font-size:.95rem; }
+details.finding.is-affected { border-left:3px solid oklch(78% .14 55); padding-left:10px; background:color-mix(in oklab, var(--tint) 70%, transparent); }
+details.finding.is-unverifiable summary code { color:var(--soft); }
+.basis { font-size:.92rem; color:var(--soft); margin:6px 0; }
+.basis.missing { color:oklch(80% .135 33); font-weight:600; }
+.basis-codes { margin:4px 0; }
+.basis-codes code { display:block; padding:6px; background:var(--paper); border:1px solid var(--line);
+  max-height:120px; overflow:auto; font-size:.78rem; line-height:1.5; }
+.verify-actions { margin:6px 0; }
+.verify-report { border-left:3px solid oklch(79% .113 156); background:var(--paper); padding:8px 10px; margin:6px 0 10px; font-size:.92rem; }
+.verify-report.unverifiable { border-left-color:oklch(80% .135 33); }
+.sample-check.is-withdrawn { color:oklch(82% .13 60); }
+.impact-query { display:flex; gap:10px; align-items:end; flex-wrap:wrap; max-width:680px; }
+.impact-query label { display:grid; gap:4px; flex:1; min-width:240px; }
+.impact-box { margin-top:8px; }
+.impact-result { border:1px solid var(--line); background:var(--paper); padding:10px 12px; }
+.impact-list { margin:6px 0; padding-left:18px; display:grid; gap:4px; }
+.impact-refs { color:oklch(82% .13 60); }
+.impact-codes { color:var(--soft); font-size:.82rem; overflow-wrap:anywhere; }
+.withdraw-reason { color:oklch(82% .13 60); font-size:.88rem; }
+@media(max-width:900px) { .baseline-row { grid-template-columns:110px 1fr; } .baseline-row.head { display:none; } }

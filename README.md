@@ -44,6 +44,18 @@ docker compose exec -T backend python -m scripts.seed_demo
 6. 09:20，第 90 刻度记录新样 `WIN-GOOD-RELINE`，验证同麦位、同备用路、新版本。
 7. 09:22，复核员签复位，现场总音控保持 BUS-C；BUS-A 的三个协作点留存原配置。
 
+## 样本撤回与用样核对
+
+演练复盘发现试音啸叫混入正常基线时，在「邻域诊断」页的“基线样本撤回与影响核查”中按编号撤回（也可逐行点“撤回此样本”）。
+
+- 撤回只写 `sound_windows.withdrawn` 等标记并记审计，**不删除原样本行**。
+- `calibration()` 统一排除撤回样本，因此新的 `/feedback/diagnose` 与 `/{code}/probe` 备用路复测都不再采用它。
+- 诊断送检时基线快照已冻结进计算队列；撤回与送检并发时，已取样的任务仍按原快照算完。签发现时把基线编号与完整取样快照固化到 `feedback_findings.basis` / `basis_detail`，结论通过 `withdrawn_refs` 标出用到的已撤回样本。
+- 计算凭证在 Redis 中 24 小时过期后，`GET /feedback/{code}/verify`（同义 `GET /feedback/{code}`、`GET /feedback/verify/{code}`）仍依据签存的分数与用样依据核对，并回读保留的原样本。
+- `basis` 为 NULL 的旧结论返回 `verifiable=false` / `verification="unverifiable"`，页面标为“无法核实”。
+- `GET /feedback/impact?code=REF-xx`（另有 `/feedback/affected`、`/audio/{code}/impact`、`/samples/{code}/impact`）返回以该样本为用样依据的结论；`GET /feedback?sample=...&withdrawn=true&unverifiable=true` 可过滤。撤回入口同义路径还有 `/audio/withdraw`、`/feedback/withdraw`、`/samples/withdraw` 及 `/{code}/withdraw`。
+- 旧库启动时 `ensure_columns()` 会幂等补齐新列，旧结论新列保持 NULL。
+
 ## 算法与源文件
 
 `backend/domain/learning.py` 从固定种子 217 的 32 个正常基线窗拟合 RobustScaler，再用 8 邻居的 novelty LOF 评估四项特征。读数为峰值频率占比、持续回响指数、整体声级、自身回路关联，范围均为 0 到 1。LOF 分数小于 −1.55 时尝试寻找同总线同刻度的相邻频率峰。在主峰偏差 25 Hz 内、峰占比至少 0.62 且回响至少 0.52 的麦位达到三个，即标记协作频带并保留。复线签发另外要求回响指数不高于 0.36。模型与阈值用于模拟声检样例。

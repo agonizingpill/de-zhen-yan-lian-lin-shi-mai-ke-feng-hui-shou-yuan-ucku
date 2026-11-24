@@ -11,6 +11,10 @@ findings = Table(
     Column("shared_points",JSON,nullable=False),
     Column("reviewed_by",String(80),nullable=False),
     Column("compute_token",String(32),nullable=False,unique=True),
+    # 签入时固化的用样依据：basis 为基线样本编号，basis_detail 为完整取样快照。
+    # 旧记录两列均为 NULL，核实时标记为无法核实。
+    Column("basis",JSON),
+    Column("basis_detail",JSON),
     CheckConstraint("category IN ('local','coordinated','normal')"),
 )
 
@@ -23,6 +27,7 @@ tickets = Table(
     Column("new_channel",String(12),nullable=False),
     Column("reline_window",String(24),ForeignKey("sound_windows.code"),unique=True),
     Column("test_score",Float),
+    Column("test_basis",JSON),
     Column("state",String(16),nullable=False),
     Column("isolated_by",String(80),nullable=False),
     Column("restored_by",String(80)),

@@ -1,4 +1,5 @@
-from sqlalchemy import CheckConstraint,Column,Float,ForeignKey,Integer,String,Table,UniqueConstraint
+from sqlalchemy import (Boolean, CheckConstraint, Column, DateTime, Float, ForeignKey,
+                        Integer, String, Table, UniqueConstraint, text)
 from core.db import metadata
 
 points = Table(
@@ -26,6 +27,11 @@ windows = Table(
     Column("level",Float,nullable=False),
     Column("self_echo",Float,nullable=False),
     Column("purpose",String(12),nullable=False,default="live"),
+    # 撤回只做标记并保留原样本行，保证已签结论的用样依据事后仍可核对。
+    Column("withdrawn",Boolean,nullable=False,server_default=text("0")),
+    Column("withdrawn_by",String(80)),
+    Column("withdrawn_at",DateTime),
+    Column("withdraw_reason",String(200)),
     UniqueConstraint("point","slot","revision"),
     CheckConstraint("slot BETWEEN 1 AND 46000"),
     CheckConstraint("frequency BETWEEN 60 AND 14000"),

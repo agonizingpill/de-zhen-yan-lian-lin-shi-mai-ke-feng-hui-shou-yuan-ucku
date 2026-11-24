@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import HTTPException
 from sqlalchemy import select
 from core.audit import record
@@ -69,6 +71,11 @@ def restore(code,form,user):
     if payload["kind"]!="reline" or payload["ticket"]!=code:
         raise HTTPException(409,"计算凭证不属于这张复线单")
     focus=payload["focus"]
+    basis_codes=[row.get("code") for row in payload.get("baseline",[])
+                 if isinstance(row,dict) and row.get("code")]
+    test_basis={"sampled_at":datetime.now(timezone.utc).isoformat(),
+                "reference_windows":rating.get("reference_windows",len(basis_codes)),
+                "baseline":basis_codes,"focus":focus.get("code")}
     with transaction() as conn:
         lock_patch(conn)
         ticket=one(conn,tickets,code,lock=True)
@@ -78,6 +85,7 @@ def restore(code,form,user):
             raise HTTPException(409,"复线后仍有异常或明显回响，保留隔离")
         conn.execute(points.update().where(points.c.code==point["code"]).values(patch=Patch.LIVE))
         conn.execute(tickets.update().where(tickets.c.code==code).values(state=Ticket.RESTORED,
-                     reline_window=focus["code"],test_score=rating["score"],restored_by=user["sub"]))
+                     reline_window=focus["code"],test_score=rating["score"],test_basis=test_basis,
+                     restored_by=user["sub"]))
         record(conn,user,f"reline:{code}:{focus['code']}")
         return one(conn,tickets,code)

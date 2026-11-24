@@ -42,3 +42,16 @@ class RelineProbe(Input):
 
 class Restore(Input):
     token: Token
+
+
+class WithdrawSample(Input):
+    # 兼容不同调用方对样本编号字段的命名；路径撤回时可以没有请求体。
+    model_config = ConfigDict(extra="ignore")
+    code: Code | None = None
+    sample: Code | None = None
+    window: Code | None = None
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)] | None = None
+    note: Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)] | None = None
+
+    def target(self):
+        return self.code or self.sample or self.window

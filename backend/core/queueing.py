@@ -14,7 +14,8 @@ def submit(user, payload):
     item = {'token': token, 'owner': user['sub'], 'input': payload}
     with broker.pipeline() as pipe:
         pipe.set(f'compute:{token}', json.dumps({'owner': user['sub'], 'status': 'queued'}), ex=86400)
-        pipe.rpush(QUEUE, json.dumps(item))
+        # default=str：快照行可能带 withdrawn_at 等 datetime，保证送检载荷可序列化。
+        pipe.rpush(QUEUE, json.dumps(item, default=str))
         pipe.execute()
     return {'token': token, 'status': 'queued'}
 
